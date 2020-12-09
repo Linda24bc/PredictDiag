@@ -29,4 +29,7 @@ diag <- read.csv("finddiag.csv")
 HbA.B <- read.csv("ref mass list_pro_1.csv") %>% select(-c(Ref_Mass, Ref_rel_abun, Variant))
 
 ### Run the function
-PredictDiag <- PredictDiag(Hbvarinats)
+PD.result <- PredictDiag(Hbvarinats)
+
+### output results in .csv
+write.csv(PD.result, "PredictDiag.csv", row.names = FALSE)
