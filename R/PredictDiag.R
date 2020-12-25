@@ -62,7 +62,9 @@ PredictDiag <- function(Hbvarinats) {
     sub.input5 <- sub.input4 %>% separate(ms2type,c("ion", "CS"), "]") %>%
       separate(ion, c("type", "ion_num"), sep = 2) %>%
       separate(type, c("X", "ion_type"), sep = 1)
-    sub.input6 <- subset(sub.input5, select=c("ion_type","ion_num","CS","ms2mz" ), CS=="1+")
+    sub.input5 <- mutate(sub.input5, ms2mz1 = ifelse(ion_type=="z", sub.input5$ms2mz+1.007276466,sub.input5$ms2mz))
+    sub.input6 <- subset(sub.input5, select=c("ion_type","ion_num","CS","ms2mz1" ), CS=="1+")
+    names(sub.input6)[4] <- "ms2mz"
     out1 <- rbind(sub.input3,sub.input6)
     out1$varints <- ID2[j]
     out2[[j]] <- out1
