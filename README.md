@@ -13,14 +13,17 @@ Install from GitHub:
 ## Steps to get the results
 ### package
 install.packages("seqinr") 
-install.packages('OrgMassSpecR') 
+install.packages('OrgMassSpecR') #no need for PredictDiag, is needed for PredictDiag1
 library(seqinr) 
 library(dplyr) 
-library(OrgMassSpecR) 
+library(OrgMassSpecR) #no need for PredictDiag, is needed for PredictDiag1
 library(tidyr)
+library(data.table)
+function monomz is needed for PredictDiag
 
 ### Input the sequennces of HbA beta and Hb variants (including M at N_termius)
-Hbvariants <- read.fasta(file = "Hbvariants.fasta", seqtype = "AA",as.string = FALSE) HbAB <- read.fasta(file = "HbA.fasta", seqtype = "AA",as.string = FALSE)
+Hbvariants <- read.fasta(file = "Hbvariants.fasta", seqtype = "AA",as.string = FALSE) 
+HbAB <- read.fasta(file = "HbA.fasta", seqtype = "AA",as.string = FALSE)
 
 ### Input the possible diagnostic ion list for each AA
 diag <- read.csv("finddiag.csv")
@@ -33,3 +36,4 @@ PD.result <- PredictDiag(Hbvarinats)
 
 ### output results in .csv
 write.csv(PD.result, "PredictDiag.csv", row.names = FALSE)
+

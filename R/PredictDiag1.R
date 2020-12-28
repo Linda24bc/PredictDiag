@@ -1,4 +1,4 @@
-PredictDiag <- function(Hbvarinats) {
+PredictDiag1 <- function(Hbvarinats) {
   WT <- HbAB$`sp|P68871|HBB_HUMAN`
   re <- list()
   for (i in 1:length(names(Hbvariants))){
