@@ -51,11 +51,21 @@ PredictDiag <- function(Hbvarinats) {
   for (j in 1:length(ID2)){
     Hbseq1 <- getSequence(Hbvariants, as.string = TRUE)
     Hbseq2 <- sub("M","",Hbseq1[[j]])
-    input <- monomz(Hbseq2, fragments = "by")
-
-    input2 <- monomz(Hbseq2, fragments = "cz")
-
-    out1 <- rbind(input,input2)
+    input <- FragmentPeptide(Hbseq2, fragments = "by", IAA = FALSE,N15 = FALSE)
+    sub.input <- subset(input, select=c(ms2type, ms2mz))
+    sub.input2 <- sub.input %>% separate(ms2type,c("ion", "CS"), "]") %>%
+      separate(ion, c("type", "ion_num"), sep = 2) %>%
+      separate(type, c("X", "ion_type"), sep = 1)
+    sub.input3 <- subset(sub.input2, select=c("ion_type","ion_num","CS","ms2mz" ), CS=="1+")
+    input2 <- FragmentPeptide(Hbseq2, fragments = "cz", IAA = FALSE,N15 = FALSE)
+    sub.input4 <- subset(input2, select=c(ms2type, ms2mz))
+    sub.input5 <- sub.input4 %>% separate(ms2type,c("ion", "CS"), "]") %>%
+      separate(ion, c("type", "ion_num"), sep = 2) %>%
+      separate(type, c("X", "ion_type"), sep = 1)
+    sub.input5 <- mutate(sub.input5, ms2mz1 = ifelse(ion_type=="z", sub.input5$ms2mz+1.007276466,sub.input5$ms2mz))
+    sub.input6 <- subset(sub.input5, select=c("ion_type","ion_num","CS","ms2mz1" ), CS=="1+")
+    names(sub.input6)[4] <- "ms2mz"
+    out1 <- rbind(sub.input3,sub.input6)
     out1$varints <- ID2[j]
     out2[[j]] <- out1
   }
@@ -68,11 +78,11 @@ PredictDiag <- function(Hbvarinats) {
     sub %>% mutate_if(is.numeric, as.character) -> sub
     sub2 <- subset(all.frags, varints==ID3[i])
     sub2 %>% mutate_if(is.numeric, as.character) -> sub2
-    out[[i]] <-inner_join(sub2, sub, by = c("Ion_type"="Ion.type", "Ion_num"="Ion.num"))
+    out[[i]] <-inner_join(sub2, sub, by = c("ion_type"="Ion.type", "ion_num"="Ion.num"))
   }
   relist <- do.call(rbind,out)
   relist2 <- relist %>% separate(variant,c("x","Variant"), sep = 3)
-  names(relist2)[5] <- "Ref_Mass"
-  relist2$Name <- paste(relist2$Ion,relist2$Variant, sep = "_" )
-  relist3 <- relist2[, c(11,2,3,4,5,8,10)]
+  names(relist2)[4] <- "Ref_Mass"
+  relist2$Name <- paste(relist2$ion_type,relist2$Variant, sep = "_" )
+  relist3 <- relist2[, c(10,8,1,2,4,7,9)]
 }
