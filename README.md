@@ -22,7 +22,7 @@ library(data.table)
 function monomz is needed for PredictDiag
 
 ### Input the sequennces of HbA beta and Hb variants (including M at N_termius)
-Hbvariants <- read.fasta(file = "Hbvariants.fasta", seqtype = "AA",as.string = FALSE) 
+Hbvariants <- read.fasta(file = "Hbvariants20.fasta", seqtype = "AA",as.string = FALSE) 
 HbAB <- read.fasta(file = "HbA.fasta", seqtype = "AA",as.string = FALSE)
 
 ### Input the possible diagnostic ion list for each AA
@@ -35,5 +35,6 @@ HbA.B <- read.csv("ref mass list_pro_1.csv") %>% select(-c(Ref_Mass, Ref_rel_abu
 PD.result <- PredictDiag(Hbvarinats)
 
 ### output results in .csv
-write.csv(PD.result, "PredictDiag.csv", row.names = FALSE)
+write.csv(PD.result, "PredictDiag_variants20.csv", row.names = FALSE)
+length(unique(PD.result$Variant))
 
