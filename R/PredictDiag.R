@@ -10,13 +10,54 @@ PredictDiag <- function(Hbvarinats) {
   re1 <- do.call(rbind,re)
   re1$Mutation <- paste(re1$WT.AA, re1$mut.site_N,re1$MT.AA)
   IDs <- re1$mut.site_N
-  find.diag <- list()
-  for (j in 1:length(IDs)){
-    find <- diag[diag$mut.site == IDs[j], ]
-    find.diag[[j]] <- cbind(variant= re1$variant[j],mut.site_C=re1$mut.site_C[j], find, Mutation= re1$Mutation[j] )
+  mutMass <- function(residue)
+  { if (residue == "A")
+    mass = 71.03711
+  if (residue == "R")
+    mass = 156.10111
+  if (residue == "N")
+    mass = 114.04293
+  if (residue == "D")
+    mass = 115.02694
+  if (residue == "E")
+    mass = 129.04259
+  if (residue == "Q")
+    mass = 128.05858
+  if (residue == "G")
+    mass = 57.02146
+  if (residue == "H")
+    mass = 137.05891
+  if (residue == "I")
+    mass = 113.08406
+  if (residue == "L")
+    mass = 113.08406
+  if (residue == "K")
+    mass = 128.09496
+  if (residue == "M")
+    mass = 131.04049
+  if (residue == "F")
+    mass = 147.06841
+  if (residue == "P")
+    mass = 97.05276
+  if (residue == "S")
+    mass = 87.03203
+  if (residue == "T")
+    mass = 101.04768
+  if (residue == "W")
+    mass = 186.07931
+  if (residue == "Y")
+    mass = 163.06333
+  if (residue == "V")
+    mass = 99.06841
+  if (residue == "C")
+    mass = 103.00919
+  return(mass)
   }
-  find.diag1 <- do.call(rbind,find.diag) %>% cbind(MT.AA=re1$MT.AA)
-  find.diag2 <- find.diag1[, c(1,2,3,4,10,5,6,7,8,9)]
+  re1$mutMass <- round(sapply(re1$MT.AA,mutMass)-sapply(re1$WT.AA,mutMass), 5)
+
+  df <- left_join(re1, diag, by = "mut.site_N")
+  df2 <- df[, c(1,2,3,6,7,9,10,11,12)]
+
   #2
   #bc ions
   HbA.bc1 <- subset(HbA.B, Ion.type=="b"|Ion.type=="c")
@@ -25,21 +66,21 @@ PredictDiag <- function(Hbvarinats) {
   HbA.yz1 <- subset(HbA.B, Ion.type=="y"|Ion.type=="z")
   HbA.yz <-as.data.table(HbA.yz1)
   #bc ions
-  m <- length(find.diag2$diag.N.term.start)
+  m <- length(df2$diag.N.term.start)
   re <- list()
   for (i in 1:m){
-    s <- as.numeric(find.diag2$diag.N.term.start[i])
-    e <- as.numeric(find.diag2$diag.N.term.end[i])
-    re[[i]] <- cbind(variant=find.diag2$variant[i],HbA.bc[Ion.num %between% c(s, e)], Mutation = find.diag2$Mutation[i])
+    s <- as.numeric(df2$diag.N.term.start[i])
+    e <- as.numeric(df2$diag.N.term.end[i])
+    re[[i]] <- cbind(variant=df2$variant[i],HbA.bc[Ion.num %between% c(s, e)], Mutation = df2$Mutation[i], MutMass.Da= df2$mutMass[i])
   }
   re2 <- do.call(rbind,re)
   #yz ions
-  n <- length(find.diag2$diag.C.term.start)
+  n <- length(df2$diag.C.term.start)
   re3 <- list()
   for (j in 1:n){
-    s <- as.numeric(find.diag2$diag.C.term.start[j])
-    e <- as.numeric(find.diag2$diag.C.term.end[j])
-    re3[[j]] <- cbind(variant=find.diag2$variant[j],HbA.yz[Ion.num %between% c(s, e)],Mutation = find.diag2$Mutation[j])
+    s <- as.numeric(df2$diag.C.term.start[j])
+    e <- as.numeric(df2$diag.C.term.end[j])
+    re3[[j]] <- cbind(variant=df2$variant[j],HbA.yz[Ion.num %between% c(s, e)],Mutation = df2$Mutation[j], MutMass.Da= df2$mutMass[j])
   }
   re4 <- do.call(rbind,re3)
 
@@ -74,5 +115,6 @@ PredictDiag <- function(Hbvarinats) {
   relist2 <- relist %>% separate(variant,c("x","Variant"), sep = 3)
   names(relist2)[5] <- "Ref_Mass"
   relist2$Name <- paste(relist2$Ion,relist2$Variant, sep = "_" )
-  relist3 <- relist2[, c(11,2,3,4,5,8,10)]
+  relist3 <- relist2[, c(12,2,3,4,5,8,10,11)]
+return(relist3)
 }
