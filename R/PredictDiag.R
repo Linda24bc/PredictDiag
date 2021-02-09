@@ -55,7 +55,7 @@ PredictDiag <- function(Hbvarinats) {
   }
   re1$mutMass <- round(sapply(re1$MT.AA,mutMass)-sapply(re1$WT.AA,mutMass), 5)
 
-  df <- left_join(re1, diag, by = "mut.site_N")
+  df <- dplyr::left_join(re1, diag, by = "mut.site_N")
   df2 <- df[, c(1,2,3,6,7,9,10,11,12)]
 
   #2
